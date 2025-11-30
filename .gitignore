@@ -1,0 +1,22 @@
+# Frontend временно игнорируем
+frontend/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+.idea/
+*.iml
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+
+# Environment variables
+.env
