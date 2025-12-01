@@ -13,12 +13,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @Service
 @Slf4j
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
     private final SpotifyClient spotifyClient;
+
+    private static final Logger log = LoggerFactory.getLogger(ArtistService.class);
+
 
     public ArtistService(ArtistRepository artistRepository, SpotifyClient spotifyClient) {
         this.artistRepository = artistRepository;

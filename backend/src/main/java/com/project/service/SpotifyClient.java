@@ -7,10 +7,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Map;
 
-@Service
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Slf4j
+@Service
 public class SpotifyClient {
 
+
+private static final Logger log = LoggerFactory.getLogger(SpotifyClient.class);
+    
     private final SpotifyAuthService authService;
     private final RestTemplate restTemplate;
 

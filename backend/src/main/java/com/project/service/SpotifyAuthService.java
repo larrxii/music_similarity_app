@@ -9,10 +9,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @Service
 @Slf4j
 public class SpotifyAuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(SpotifyAuthService.class);
     @Value("${spotify.client-id}")
     private String clientId;
 

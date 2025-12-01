@@ -1,5 +1,7 @@
 package com.project.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
