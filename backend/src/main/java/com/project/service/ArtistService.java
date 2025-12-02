@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Service
 @Slf4j
 public class ArtistService {
@@ -25,7 +24,6 @@ public class ArtistService {
     private final SpotifyClient spotifyClient;
 
     private static final Logger log = LoggerFactory.getLogger(ArtistService.class);
-
 
     public ArtistService(ArtistRepository artistRepository, SpotifyClient spotifyClient) {
         this.artistRepository = artistRepository;
@@ -48,9 +46,8 @@ public class ArtistService {
 
                     // Конвертируем и сохраняем артистов
                     List<Artist> artists = items.stream()
-                            .map(this::convertSpotifyItemToArtist)
+                            .map(item -> convertSpotifyItemToArtist(item)) // Явный вызов метода
                             .collect(Collectors.toList());
-
                     // Сохраняем в БД (Spring Data автоматически пропустит дубликаты по spotifyId)
                     List<Artist> savedArtists = artistRepository.saveAll(artists);
                     log.info("Saved {} artists to database", savedArtists.size());

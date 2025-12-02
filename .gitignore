@@ -1,6 +1,3 @@
-# Frontend временно игнорируем
-frontend/
-
 # Java
 *.class
 *.jar
