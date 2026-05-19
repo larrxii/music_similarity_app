@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Search, Music } from "lucide-react";
 import { SimilarArtistCard } from "./components/SimilarArtistCard";
+import { spotifyClient } from "./api/spotifyClient";
+import { SimilarTrackCard } from "./components/SimilarTrackCard";
 
 interface Artist {
   // интерфейс нужен для типизации артиста из бэкенда
@@ -20,37 +22,23 @@ export default function App() {
   const [searchedArtist, setSearchedArtist] = useState(""); // состояние для отображения текущего искомого артиста
   const [similarArtists, setSimilarArtists] = useState<any[]>([]); // состояние для списка похожих артистов
   const [isSearching, setIsSearching] = useState(false); // состояние для индикатора поиска
+  const [searchType, setSearchType] = useState<"artist" | "track">("artist");
 
   const handleSearch = async () => {
-    if (!searchInput.trim()) return; // если строка пустая, ничего не делаем
+    if (!searchInput.trim()) return;
 
-    setIsSearching(true); // устанавливаем состояние поиска в true
-    setSearchedArtist(searchInput); // сохраняем текущий поисковый запрос
+    setIsSearching(true);
+    setSearchedArtist(searchInput);
 
     try {
-      // 1. Ищем артистов через бэкенд
-      const response = await fetch(
-        `http://localhost:8080/api/artists/search?query=${encodeURIComponent(
-          // encodeuriComponent кодирует строку для URL
-          searchInput
-        )}&limit=4` // ограничиваем результат 4 артистами
-      );
+      // const artists = await spotifyClient.getSimilarArtists(searchInput);
+      const results =
+        searchType === "artist"
+          ? await spotifyClient.getSimilarArtists(searchInput)
+          : await spotifyClient.getSimilarTracks(searchInput);
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
-
-      const artists: Artist[] = await response.json(); // получаем массив артистов из ответа
-
-      console.log("Artists from backend:", artists);
-
-      // 2. Преобразуем данные для отображения в карточках
-      const artistsForDisplay = artists.map((artist, index) => {
-        // map преобразует каждый объект артиста в формат для карточки
-        // Используем imageUrl из ответа бэкенда
-        const imageUrl = artist.imageUrl;
-
-        // Если нет картинки, используем заглушку
+      
+      const itemsForDisplay = results.map((item: any, index: number) => {
         const fallbackImages = [
           "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
           "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
@@ -59,40 +47,31 @@ export default function App() {
         ];
 
         return {
-          id: artist.id || artist.spotifyId || `artist-${index}`,
-          name: artist.name,
-          genre: artist.genre || "Various",
-          // Вычисляем similarity на основе popularity (если есть) или используем рандом
-          similarity: artist.popularity
-            ? Math.min(95, 70 + (artist.popularity / 100) * 25)
-            : 80 + index * 4,
-          image: imageUrl || fallbackImages[index % fallbackImages.length],
-          popularity: artist.popularity,
+          id: item.id,
+
+          // artist mode
+          name: item.name,
+
+          // track mode
+          artistName: item.artistName,
+
+          genre: "Various",
+
+          similarity: 80 + index * 3,
+
+          imageUrl:
+            item.imageUrl ||
+            fallbackImages[index % 4],
+
+          popularity: item.popularity,
         };
       });
 
-      setSimilarArtists(artistsForDisplay);
+      setSimilarArtists(itemsForDisplay);
+
     } catch (error) {
       console.error("Search error:", error);
-      // В случае ошибки показываем заглушку
-      // setSimilarArtists([ // заглушечные данные которые можно удалить
-      //   {
-      //     id: "error-1",
-      //     name: "Taylor Swift",
-      //     genre: "Pop",
-      //     similarity: 85,
-      //     image:
-      //       "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-      //   },
-      //   {
-      //     id: "error-2",
-      //     name: "Taylor Swift Piano Covers",
-      //     genre: "Instrumental",
-      //     similarity: 85,
-      //     image:
-      //       "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
-      //   },
-      // ]);
+      setSimilarArtists([]);
     } finally {
       setIsSearching(false);
     }
@@ -115,7 +94,10 @@ export default function App() {
           </div>
           <h1 className="text-purple-900 mb-3">Music Discovery</h1>
           <p className="text-purple-700">
-            Find artists similar to your favorites
+            {/* Find artists similar to your favorites */}
+            {searchType === "artist"
+              ? "Find artists similar to your favorites"
+              : "Find tracks similar to your favorites"}
           </p>
         </div>
 
@@ -123,13 +105,31 @@ export default function App() {
         <div className="max-w-2xl mx-auto mb-16">
           <div className="neomorph-inset rounded-2xl p-2">
             <div className="flex items-center gap-3 px-4">
+              <div className="flex gap-4 mb-4 justify-center">
+              <button
+                onClick={() => setSearchType("artist")}
+              >
+                Artists
+              </button>
+
+              <button
+                onClick={() => setSearchType("track")}
+              >
+                Tracks
+              </button>
+            </div>
+
               <Search className="w-5 h-5 text-purple-500" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Enter artist name..."
+                placeholder={
+                  searchType === "artist"
+                    ? "Enter artist name..."
+                    : "Enter track name..."
+                }
                 className="flex-1 bg-transparent border-none outline-none py-4 text-purple-900 placeholder-purple-400"
               />
               <button
@@ -186,9 +186,22 @@ export default function App() {
               </div>
             ) : similarArtists.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {similarArtists.map((artist) => (
+                {/* {similarArtists.map((artist) => (
                   <SimilarArtistCard key={artist.id} artist={artist} />
-                ))}
+                ))} */}
+                {similarArtists.map((item) =>
+                  searchType === "artist" ? (
+                    <SimilarArtistCard
+                      key={item.id}
+                      artist={item}
+                    />
+                  ) : (
+                    <SimilarTrackCard
+                      key={item.id}
+                      track={item}
+                    />
+                  )
+                )}
               </div>
             ) : (
               <div className="text-center py-12">

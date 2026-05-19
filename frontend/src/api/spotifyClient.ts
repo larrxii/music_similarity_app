@@ -11,24 +11,39 @@ export interface Artist {
   similarity?: number; // для похожих артистов
 }
 
+export interface Track {
+  id: string;
+  name: string;
+  artistName?: string;
+  imageUrl?: string;
+  popularity?: number;
+}
+
 export const spotifyClient = {
-  // функция поиска артистов
-  searchArtists: async (query: string, limit: number = 10): Promise<any[]> => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/artists/search?query=${encodeURIComponent(
-          query
-        )}&limit=${limit}`
-      );
+  searchArtists: async (query: string, limit: number = 10) => {
+    const response = await fetch(
+      `${API_BASE_URL}/artists/search?query=${encodeURIComponent(query)}&limit=${limit}`
+    );
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
+    if (!response.ok) throw new Error("Search failed");
+    return response.json();
+  },
 
-      return await response.json();
-    } catch (error) {
-      console.error("Error searching artists:", error);
-      return [];
-    }
+  getSimilarArtists: async (artistName: string) => {
+    const response = await fetch(
+      `${API_BASE_URL}/recommend/${encodeURIComponent(artistName)}`
+    );
+
+    if (!response.ok) throw new Error("Recommendation failed");
+    return response.json();
+  },
+
+  getSimilarTracks: async (trackName: string) => {
+    const response = await fetch(
+      `${API_BASE_URL}/recommend/tracks/${encodeURIComponent(trackName)}`
+    );
+
+    if (!response.ok) throw new Error("Track recommendation failed");
+    return response.json();
   },
 };
