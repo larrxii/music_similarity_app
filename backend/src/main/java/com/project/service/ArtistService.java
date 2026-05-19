@@ -24,10 +24,16 @@ public class ArtistService {
     private final SpotifyClient spotifyClient;
 
     private static final Logger log = LoggerFactory.getLogger(ArtistService.class);
+    private final FeatureExtractionService featureExtractionService;
 
-    public ArtistService(ArtistRepository artistRepository, SpotifyClient spotifyClient) {
+    public ArtistService(
+        ArtistRepository artistRepository,
+        SpotifyClient spotifyClient,
+        FeatureExtractionService featureExtractionService
+    ) {
         this.artistRepository = artistRepository;
         this.spotifyClient = spotifyClient;
+        this.featureExtractionService = featureExtractionService;
     }
 
     public List<ArtistDTO> searchArtists(String query, int limit) {
@@ -48,6 +54,12 @@ public class ArtistService {
                     List<Artist> artists = items.stream()
                             .map(item -> convertSpotifyItemToArtist(item)) // Явный вызов метода
                             .collect(Collectors.toList());
+
+                    // for (Artist artist : artists) {
+                    //     String embedding = featureExtractionService.generateArtistEmbedding(artist.getSpotifyId());
+                    //     artist.setFeatureVector(embedding);
+                    // }
+
                     // Сохраняем в БД (Spring Data автоматически пропустит дубликаты по spotifyId)
                     List<Artist> savedArtists = artistRepository.saveAll(artists);
                     log.info("Saved {} artists to database", savedArtists.size());
@@ -92,15 +104,11 @@ public class ArtistService {
 
     private Artist convertSpotifyItemToArtist(Map<String, Object> item) {
         Artist artist = new Artist();
+
         artist.setSpotifyId((String) item.get("id"));
         artist.setName((String) item.get("name"));
         artist.setPopularity((Integer) item.get("popularity"));
 
-        // Обрабатываем жанры
-        List<String> genres = (List<String>) item.get("genres");
-        artist.setGenres(genres != null && !genres.isEmpty() ? genres : List.of("Unknown"));
-
-        // Обрабатываем изображения
         List<Map<String, Object>> images = (List<Map<String, Object>>) item.get("images");
         if (images != null && !images.isEmpty()) {
             artist.setImageUrl((String) images.get(0).get("url"));
@@ -110,13 +118,16 @@ public class ArtistService {
     }
 
     private ArtistDTO convertToDTO(Artist artist) {
+
         ArtistDTO dto = new ArtistDTO();
+
         dto.setId(artist.getId());
         dto.setSpotifyId(artist.getSpotifyId());
         dto.setName(artist.getName());
         // dto.setGenres(artist.getGenres());
-        dto.setImageUrl(artist.getImageUrl());
         dto.setPopularity(artist.getPopularity());
+
         return dto;
     }
+
 }

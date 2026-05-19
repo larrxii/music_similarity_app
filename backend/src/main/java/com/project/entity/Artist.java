@@ -1,32 +1,50 @@
 package com.project.entity;
 
-import lombok.Getter;
-import lombok.Setter;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.List;
 
 @Entity
 @Table(name = "artists")
 @Data
 public class Artist {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(unique = true)
-    private String spotifyId;
+    @Id
+    private Long id;
 
     private String name;
 
-    @ElementCollection
-    private List<String> genres; // Изменили: теперь список жанров
+    @Column(name = "spotify_id")
+    private String spotifyId;
 
+    @Column(name = "image_url")
     private String imageUrl;
+
     private Integer popularity;
 
-    // Пока уберём сложные поля для MVP
-    // private String country;
-    // private Double[] featureVector;
-    // private List<String> topTracks;
+    @Column(name = "feature_vector", columnDefinition = "vector(8)")
+    private String featureVector;
 }
+
+// @Entity
+// @Table(name = "artists")
+// @Data
+// public class Artist {
+//     @Id
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//     private Long id;
+
+//     @Column(unique = true)
+//     private String spotifyId;
+
+//     private String name;
+
+//     @ElementCollection
+//     private List<String> genres;
+
+//     private String imageUrl;
+
+//     private Integer popularity;
+
+//     @Column(columnDefinition = "TEXT")
+//     private String featureVector;
+// }

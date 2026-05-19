@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/musicdb
     username: postgres
-    password: 20012005Kam!
+    password: PassWord11
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

@@ -1,9 +1,10 @@
 package com.project.controller;
 
-import com.project.dto.ArtistDTO;
+// import com.project.dto.ArtistDTO;
 import com.project.service.ArtistService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.project.dto.ArtistDTO;
 
 import java.util.List;
 

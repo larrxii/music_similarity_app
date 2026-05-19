@@ -2,16 +2,23 @@
 package com.project.repository;
 
 import com.project.entity.Artist;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
-
-@Repository
 public interface ArtistRepository extends JpaRepository<Artist, Long> {
-    Optional<Artist> findBySpotifyId(String spotifyId);
+
+    Optional<Artist> findByNameIgnoreCase(String name);
 
     List<Artist> findByNameContainingIgnoreCase(String name);
 
-    boolean existsBySpotifyId(String spotifyId); // Добавили для проверки существования
+    Optional<Artist> findBySpotifyId(String spotifyId);
+
+    @Query(value = """
+        SELECT *
+        FROM artists
+        ORDER BY feature_vector <-> CAST(:vector AS vector)
+        LIMIT 5
+    """, nativeQuery = true)
+    List<Artist> findSimilar(@Param("vector") String vector);
 }
