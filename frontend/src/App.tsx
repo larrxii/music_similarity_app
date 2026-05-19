@@ -49,19 +49,22 @@ export default function App() {
         return {
           id: item.id,
 
-          // artist mode
-          name: item.name,
+          name:
+            searchType === "artist"
+              ? item.name
+              : item.trackName,
 
-          // track mode
-          artistName: item.artistName,
+          artistName:
+            searchType === "track"
+              ? item.artistId
+              : undefined,
 
           genre: "Various",
 
           similarity: 80 + index * 3,
 
           imageUrl:
-            item.imageUrl ||
-            fallbackImages[index % 4],
+            item.imageUrl || fallbackImages[index % 4],
 
           popularity: item.popularity,
         };
@@ -106,17 +109,8 @@ export default function App() {
           <div className="neomorph-inset rounded-2xl p-2">
             <div className="flex items-center gap-3 px-4">
               <div className="flex gap-4 mb-4 justify-center">
-              <button
-                onClick={() => setSearchType("artist")}
-              >
-                Artists
-              </button>
-
-              <button
-                onClick={() => setSearchType("track")}
-              >
-                Tracks
-              </button>
+              <button onClick={() => setSearchType("artist")}> Artists </button>
+              <button onClick={() => setSearchType("track")}> Tracks </button>
             </div>
 
               <Search className="w-5 h-5 text-purple-500" />

@@ -35,7 +35,6 @@ public class TrackFeature {
     private Double valence;
     private Double tempo;
 
-    @JdbcTypeCode(SqlTypes.OTHER)
-    @Column(name = "embedding", columnDefinition = "vector(8)")
-    private PGvector embedding;
+    @Column(name = "embedding", columnDefinition = "TEXT")
+    private String embedding;
 }
