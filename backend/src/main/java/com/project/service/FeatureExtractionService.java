@@ -14,6 +14,10 @@ import com.pgvector.PGvector;
 @Slf4j
 public class FeatureExtractionService {
     private final SpotifyClient spotifyClient;
+    private static final float DANCEABILITY_WEIGHT = 1.4f;
+    private static final float ENERGY_WEIGHT = 1.3f;
+    private static final float VALENCE_WEIGHT = 1.2f;
+    private static final float TEMPO_WEIGHT = 0.8f;
 
     public FeatureExtractionService(SpotifyClient spotifyClient) {
         this.spotifyClient = spotifyClient;
@@ -22,14 +26,14 @@ public class FeatureExtractionService {
     public float[] buildEmbedding(TrackFeature t) {
 
         return new float[] {
-            normalize(t.getDanceability()),
-            normalize(t.getEnergy()),
-            normalize(t.getAcousticness()),
-            normalize(t.getInstrumentalness()),
-            normalize(t.getLiveness()),
-            normalize(t.getSpeechiness()),
-            normalize(t.getValence()),
-            normalizeTempo(t.getTempo())
+            normalize(t.getDanceability()) * 1.4f,
+            normalize(t.getEnergy()) * 1.3f,
+            normalize(t.getAcousticness()) * 0.9f,
+            normalize(t.getInstrumentalness()) * 0.7f,
+            normalize(t.getLiveness()) * 0.6f,
+            normalize(t.getSpeechiness()) * 0.8f,
+            normalize(t.getValence()) * 1.2f,
+            normalizeTempo(t.getTempo()) * 0.8f
         };
     }
 
