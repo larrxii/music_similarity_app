@@ -52,6 +52,10 @@ public class TrackRecommendationService {
                 .toList();
     }
 
+    public TrackFeature saveTrack(TrackFeature trackFeature) {
+        return repository.save(trackFeature);
+    }
+
     private float[] parseEmbedding(String embedding) {
 
         embedding = embedding
